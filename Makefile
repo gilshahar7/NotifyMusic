@@ -5,7 +5,7 @@ include theos/makefiles/common.mk
 
 TWEAK_NAME = NotifyMusic
 NotifyMusic_FILES = Tweak.xm
-NotifyMusic_FRAMEWORKS = CoreTelephony AudioToolbox UIKit
+NotifyMusic_FRAMEWORKS = UIKit
 NotifyMusic_LIBRARIES = bulletin
 
 include $(THEOS_MAKE_PATH)/tweak.mk
