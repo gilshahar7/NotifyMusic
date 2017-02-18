@@ -1,0 +1,9 @@
+Package: com.gilshahar7.notifymusic
+Name: NotifyMusic
+Depends: mobilesubstrate, net.limneos.libbulletin
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: An awesome MobileSubstrate tweak!
+Maintainer: gilshahar7
+Author: gilshahar7
+Section: Tweaks
