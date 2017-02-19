@@ -9,6 +9,7 @@
 	@property bool isPlaying;
 	@property (nonatomic,readonly) NSString * nowPlayingAppDisplayID;
 	@property (nonatomic,readonly) MPUNowPlayingMetadata * currentNowPlayingMetadata;
+	@property (nonatomic,readonly) UIImage * currentNowPlayingArtwork;
 @end
 
 @interface JBBulletinManager : NSObject
@@ -24,6 +25,7 @@
 
 %hook MPUNowPlayingController
 	static NSString *cachedTitle;
+	static NSString *artist;
 	-(void)_updateCurrentNowPlaying{
 		%orig;
 		double delayInSeconds = 0.5;
@@ -31,7 +33,16 @@
 		dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
 			if(self.isPlaying && ([self.nowPlayingAppDisplayID isEqualToString:@"com.apple.Music"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.spotify.client"]) && ![cachedTitle isEqualToString:self.currentNowPlayingMetadata.title]){
 				cachedTitle = [self.currentNowPlayingMetadata.title copy];
-				[[objc_getClass("JBBulletinManager") sharedInstance] showBulletinWithTitle:self.currentNowPlayingMetadata.title message:self.currentNowPlayingMetadata.artist bundleID:self.nowPlayingAppDisplayID];
+				if([self.currentNowPlayingMetadata.artist length] > 1){
+					artist = [NSString stringWithFormat: @"\nBy: %@", self.currentNowPlayingMetadata.artist];
+				}else{
+					artist = @"";
+				}
+				if(self.currentNowPlayingArtwork != nil){
+					[[objc_getClass("JBBulletinManager") sharedInstance] showBulletinWithTitle:@"Now Playing" message:[NSString stringWithFormat: @"%@%@", self.currentNowPlayingMetadata.title, artist] bundleID:self.nowPlayingAppDisplayID hasSound:false soundID:0 vibrateMode:0 soundPath:@"" attachmentImage:self.currentNowPlayingArtwork overrideBundleImage:nil];
+				}else{
+					[[objc_getClass("JBBulletinManager") sharedInstance] showBulletinWithTitle:@"Now Playing" message:[NSString stringWithFormat: @"%@%@", self.currentNowPlayingMetadata.title, artist] bundleID:self.nowPlayingAppDisplayID];
+				}
 			}
 		});
 	}
