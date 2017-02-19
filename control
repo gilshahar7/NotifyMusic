@@ -3,7 +3,7 @@ Name: NotifyMusic
 Depends: mobilesubstrate, net.limneos.libbulletin
 Version: 0.0.1
 Architecture: iphoneos-arm
-Description: An awesome MobileSubstrate tweak!
+Description: Creates a banner notification with song metadata when song is changed.
 Maintainer: gilshahar7
 Author: gilshahar7
 Section: Tweaks
