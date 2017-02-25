@@ -1,8 +1,22 @@
 #import <UIKit/UIKit.h>
 
+@interface SBApplication
+@end
+
+@interface SpringBoard
++(SpringBoard *)sharedApplication;
+-(SBApplication *)_accessibilityFrontMostApplication;
+@end
+
+@interface SBLockScreenManager
++(SBLockScreenManager *)sharedInstance;
+-(BOOL)isUILocked;
+@end
+
 @interface MPUNowPlayingMetadata
 	@property (nonatomic,readonly) NSString * title; 
 	@property (nonatomic,readonly) NSString * artist;
+	@property (nonatomic,readonly) NSString * album;
 @end
 
 @interface MPUNowPlayingController
@@ -10,6 +24,7 @@
 	@property (nonatomic,readonly) NSString * nowPlayingAppDisplayID;
 	@property (nonatomic,readonly) MPUNowPlayingMetadata * currentNowPlayingMetadata;
 	@property (nonatomic,readonly) UIImage * currentNowPlayingArtwork;
+	@property (nonatomic,readonly) NSDictionary * currentNowPlayingInfo;
 @end
 
 @interface JBBulletinManager : NSObject
@@ -26,22 +41,31 @@
 %hook MPUNowPlayingController
 	static NSString *cachedTitle;
 	static NSString *artist;
+	static NSString *album;
 	-(void)_updateCurrentNowPlaying{
 		%orig;
+		NSString *settingsPath = @"/var/mobile/Library/Preferences/com.gilshahar7.notifymusicprefs.plist";
+		NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:settingsPath];
+		BOOL enablewhilelocked = [[prefs objectForKey:@"enablewhilelocked"] boolValue];
+		BOOL showalbumname = [[prefs objectForKey:@"showalbumname"] boolValue];
 		double delayInSeconds = 0.5;
 		dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
 		dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-			if(self.isPlaying && ([self.nowPlayingAppDisplayID isEqualToString:@"com.apple.Music"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.spotify.client"]) && ![cachedTitle isEqualToString:self.currentNowPlayingMetadata.title]){
-				cachedTitle = [self.currentNowPlayingMetadata.title copy];
-				if([self.currentNowPlayingMetadata.artist length] > 1){
-					artist = [NSString stringWithFormat: @"\nBy: %@", self.currentNowPlayingMetadata.artist];
-				}else{
-					artist = @"";
-				}
-				if(self.currentNowPlayingArtwork != nil){
-					[[objc_getClass("JBBulletinManager") sharedInstance] showBulletinWithTitle:@"Now Playing" message:[NSString stringWithFormat: @"%@%@", self.currentNowPlayingMetadata.title, artist] bundleID:self.nowPlayingAppDisplayID hasSound:false soundID:0 vibrateMode:0 soundPath:@"" attachmentImage:self.currentNowPlayingArtwork overrideBundleImage:nil];
-				}else{
-					[[objc_getClass("JBBulletinManager") sharedInstance] showBulletinWithTitle:@"Now Playing" message:[NSString stringWithFormat: @"%@%@", self.currentNowPlayingMetadata.title, artist] bundleID:self.nowPlayingAppDisplayID];
+			if(![cachedTitle isEqualToString:self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoTitle"]]){
+				cachedTitle = [self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoTitle"] copy];
+				if((enablewhilelocked || (![[%c(SBLockScreenManager) sharedInstance] isUILocked])) && self.isPlaying && ([self.nowPlayingAppDisplayID isEqualToString:@"com.aspiro.TIDAL"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.ondalabs.doppi"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.coppertino.VoxMobile"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.soundcloud.TouchApp"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.Saavn.Saavn"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.apple.Music"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.spotify.client"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.pandora"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.rhapsody.iphone.Rhapsody3"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.google.PlayMusic"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.deezer.Deezer"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.michaelclay.Cesium"])){
+					artist = [NSString stringWithFormat: @"\n%@", self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoArtist"]];
+					
+					if([self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoAlbum"] length] > 1 && showalbumname){
+							album = self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoAlbum"];
+					}else{
+							album = @"Now Playing";
+					}
+					if(self.currentNowPlayingArtwork != nil){
+						[[objc_getClass("JBBulletinManager") sharedInstance] showBulletinWithTitle:album message:[NSString stringWithFormat: @"%@%@", self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoTitle"], artist] bundleID:self.nowPlayingAppDisplayID hasSound:false soundID:0 vibrateMode:0 soundPath:@"" attachmentImage:self.currentNowPlayingArtwork overrideBundleImage:nil];
+					}else{
+						[[objc_getClass("JBBulletinManager") sharedInstance] showBulletinWithTitle:album message:[NSString stringWithFormat: @"%@%@", self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoTitle"], artist] bundleID:self.nowPlayingAppDisplayID];
+					}
 				}
 			}
 		});
