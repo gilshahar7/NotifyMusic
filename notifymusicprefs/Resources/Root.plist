@@ -22,6 +22,18 @@
 			<key>label</key>
 			<string>Enable while locked</string>
 		</dict>
+			<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.gilshahar7.notifymusicprefs</string>
+			<key>key</key>
+			<string>enableinapp</string>
+			<key>label</key>
+			<string>Enable inside now playing app</string>
+		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSSwitchCell</string>

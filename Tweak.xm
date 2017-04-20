@@ -1,5 +1,14 @@
 #import <UIKit/UIKit.h>
 
+@interface SpringBoard
+-(id)_accessibilityFrontMostApplication;
+@end
+
+@interface UIApplication (myTweak)
++(id)sharedApplication;
+- (id)bundleIdentifier;
+@end
+
 @interface SBLockScreenManager
 +(SBLockScreenManager *)sharedInstance;
 -(BOOL)isUILocked;
@@ -28,23 +37,28 @@
 		NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:settingsPath];
 		BOOL enablewhilelocked = [[prefs objectForKey:@"enablewhilelocked"] boolValue];
 		BOOL showalbumname = [[prefs objectForKey:@"showalbumname"] boolValue];
+		BOOL enableinapp = [[prefs objectForKey:@"enableinapp"] boolValue];
+		
 		double delayInSeconds = 0.5;
 		dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
 		dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
 			if(![cachedTitle isEqualToString:self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoTitle"]]){
 				cachedTitle = [self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoTitle"] copy];
-				if((enablewhilelocked || (![[%c(SBLockScreenManager) sharedInstance] isUILocked])) && self.isPlaying && ([self.nowPlayingAppDisplayID isEqualToString:@"com.aspiro.TIDAL"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.ondalabs.doppi"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.coppertino.VoxMobile"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.soundcloud.TouchApp"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.Saavn.Saavn"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.apple.Music"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.spotify.client"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.pandora"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.rhapsody.iphone.Rhapsody3"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.google.PlayMusic"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.deezer.Deezer"] || [self.nowPlayingAppDisplayID isEqualToString:@"com.michaelclay.Cesium"])){
-					artist = [NSString stringWithFormat: @"\n%@", self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoArtist"]];
-					
-					if([self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoAlbum"] length] > 1 && showalbumname){
-							album = self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoAlbum"];
-					}else{
-							album = @"Now Playing";
-					}
-					if(self.currentNowPlayingArtwork != nil){
-						[[objc_getClass("JBBulletinManager") sharedInstance] showBulletinWithTitle:album message:[NSString stringWithFormat: @"%@%@", self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoTitle"], artist] bundleID:self.nowPlayingAppDisplayID hasSound:false soundID:0 vibrateMode:0 soundPath:@"" attachmentImage:self.currentNowPlayingArtwork overrideBundleImage:nil];
-					}else{
-						[[objc_getClass("JBBulletinManager") sharedInstance] showBulletinWithTitle:album message:[NSString stringWithFormat: @"%@%@", self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoTitle"], artist] bundleID:self.nowPlayingAppDisplayID];
+				NSString *frontMost = [[(SpringBoard *)[UIApplication sharedApplication] _accessibilityFrontMostApplication] bundleIdentifier];
+				if((enablewhilelocked || (![[%c(SBLockScreenManager) sharedInstance] isUILocked])) && self.isPlaying){
+					if(enableinapp || (![self.nowPlayingAppDisplayID isEqualToString:frontMost])){
+						artist = [NSString stringWithFormat: @"\n%@", self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoArtist"]];
+						
+						if([self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoAlbum"] length] > 1 && showalbumname){
+								album = self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoAlbum"];
+						}else{
+								album = @"Now Playing";
+						}
+						if(self.currentNowPlayingArtwork != nil){
+							[[objc_getClass("JBBulletinManager") sharedInstance] showBulletinWithTitle:album message:[NSString stringWithFormat: @"%@%@", self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoTitle"], artist] bundleID:self.nowPlayingAppDisplayID hasSound:false soundID:0 vibrateMode:0 soundPath:@"" attachmentImage:self.currentNowPlayingArtwork overrideBundleImage:nil];
+						}else{
+							[[objc_getClass("JBBulletinManager") sharedInstance] showBulletinWithTitle:album message:[NSString stringWithFormat: @"%@%@", self.currentNowPlayingInfo[@"kMRMediaRemoteNowPlayingInfoTitle"], artist] bundleID:self.nowPlayingAppDisplayID];
+						}
 					}
 				}
 			}
