@@ -11,6 +11,8 @@
 			<string>NotifyMusic</string>
 		</dict>
 		<dict>
+			<key>PostNotification</key>
+			<string>com.gilshahar7.notifymusicprefs</string>
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
@@ -22,7 +24,9 @@
 			<key>label</key>
 			<string>Enable while locked</string>
 		</dict>
-			<dict>
+		<dict>
+			<key>PostNotification</key>
+			<string>com.gilshahar7.notifymusicprefs</string>
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
@@ -35,6 +39,8 @@
 			<string>Enable inside now playing app</string>
 		</dict>
 		<dict>
+			<key>PostNotification</key>
+			<string>com.gilshahar7.notifymusicprefs</string>
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>default</key>
@@ -44,7 +50,35 @@
 			<key>key</key>
 			<string>showalbumname</string>
 			<key>label</key>
-			<string>Show album name in title</string>
+			<string>Show album name</string>
+		</dict>
+		<dict>
+			<key>PostNotification</key>
+			<string>com.gilshahar7.notifymusicprefs</string>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.gilshahar7.notifymusicprefs</string>
+			<key>key</key>
+			<string>albumastitle</string>
+			<key>label</key>
+			<string>Album name as title</string>
+		</dict>
+		<dict>
+			<key>PostNotification</key>
+			<string>com.gilshahar7.notifymusicprefs</string>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.gilshahar7.notifymusicprefs</string>
+			<key>key</key>
+			<string>showagainwhenartavail</string>
+			<key>label</key>
+			<string>Show again when albumart become available</string>
 		</dict>
 	</array>
 	<key>title</key>
