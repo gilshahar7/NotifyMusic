@@ -1,4 +1,6 @@
-ARCHS = armv7 arm64
+FINALPACKAGE = 1
+GO_EASY_ON_ME = 1
+ARCHS = armv7 arm64 arm64e
 VALID_ARCHS = armv7 armv7s arm64 arm64e
 
 include $(THEOS)/makefiles/common.mk
